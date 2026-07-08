@@ -25,8 +25,38 @@
     document.body.normalize();
   }
 
+  // display:noneやvisibility:hiddenは祖先要素・メディアクエリ・[hidden]属性など
+  // 手段が多岐にわたるため、ブラウザネイティブのcheckVisibility()に判定を委ねる
+  // （祖先チェーン全体を含めて正しく解決してくれる）。
+  function isVisible(el, cache) {
+    if (cache.has(el)) return cache.get(el);
+    let visible;
+    if (typeof el.checkVisibility === "function") {
+      visible = el.checkVisibility({ checkVisibilityCSS: true });
+    } else {
+      const style = window.getComputedStyle(el);
+      visible = style.display !== "none" && style.visibility !== "hidden";
+    }
+
+    // checkVisibilityCSSはvisibility:collapseまでは拾わないため個別に確認
+    if (visible && window.getComputedStyle(el).visibility === "collapse") {
+      visible = false;
+    }
+
+    // sr-only等「1px×1pxに潰してoverflow:hiddenでクリップする」スクリーンリーダー用
+    // 視覚的非表示テクニックはdisplay/visibilityでは検出できないため、実際の描画サイズで判定する。
+    if (visible) {
+      const rect = el.getBoundingClientRect();
+      if (rect.width <= 1 && rect.height <= 1) visible = false;
+    }
+
+    cache.set(el, visible);
+    return visible;
+  }
+
   function collectTextNodes() {
     const nodes = [];
+    const visibilityCache = new WeakMap();
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
       acceptNode(node) {
         if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
@@ -34,6 +64,7 @@
         if (!parent) return NodeFilter.FILTER_REJECT;
         if (SKIP_TAGS.has(parent.tagName)) return NodeFilter.FILTER_REJECT;
         if (parent.closest(`.${HIGHLIGHT_CLASS}`)) return NodeFilter.FILTER_REJECT;
+        if (!isVisible(parent, visibilityCache)) return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       },
     });

@@ -1,0 +1,30 @@
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", sans-serif;
+  color: #222;
+}
+
+#app {
+  max-width: 480px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+h1 {
+  font-size: 18px;
+}
+
+p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.current strong {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+button {
+  font-size: 14px;
+  padding: 8px 16px;
+  cursor: pointer;
+}

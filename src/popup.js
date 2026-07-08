@@ -86,6 +86,7 @@
   }
 
   function init() {
+    textarea.focus();
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const tab = tabs[0];
       if (!tab || !tab.url || !/^https?:\/\//.test(tab.url)) {
@@ -100,6 +101,8 @@
       chrome.storage.local.get([hostname], (stored) => {
         const patterns = Array.isArray(stored[hostname]) ? stored[hostname] : [];
         textarea.value = patterns.join("\n");
+        textarea.focus();
+        textarea.setSelectionRange(textarea.value.length, textarea.value.length);
         if (patterns.length > 0) {
           sendToContent(patterns);
         }

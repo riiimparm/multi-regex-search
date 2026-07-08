@@ -1,0 +1,88 @@
+body {
+  margin: 0;
+  font-family: -apple-system, "Segoe UI", sans-serif;
+  width: 320px;
+}
+
+#app {
+  padding: 10px;
+}
+
+.hint {
+  margin: 0 0 6px;
+  font-size: 12px;
+  color: #666;
+}
+
+textarea {
+  width: 100%;
+  height: 120px;
+  box-sizing: border-box;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  resize: vertical;
+}
+
+.warning {
+  color: #b45309;
+  font-size: 12px;
+  margin: 6px 0;
+}
+
+.unavailable {
+  color: #b91c1c;
+  font-size: 12px;
+  margin: 6px 0;
+}
+
+#results {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+}
+
+#results li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+  font-size: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+#results li.clickable {
+  cursor: pointer;
+  border-radius: 3px;
+}
+
+#results li.clickable:hover {
+  background: #f2f2f2;
+}
+
+.swatch {
+  flex: 0 0 12px;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.pattern-text {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+.count {
+  flex: 0 0 auto;
+  font-weight: 600;
+}
+
+.count.error {
+  color: #b91c1c;
+  font-weight: normal;
+}

@@ -1,0 +1,19 @@
+{
+  "manifest_version": 3,
+  "name": "Multi Regex Highlighter",
+  "version": "1.0.0",
+  "description": "複数の正規表現でページ内テキストをハイライトし、ヒット件数を表示します。",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "host_permissions": ["<all_urls>"],
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["src/colors.js", "src/content.js"],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ],
+  "action": {
+    "default_popup": "src/popup.html"
+  }
+}

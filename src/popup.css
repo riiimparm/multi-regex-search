@@ -1,43 +1,63 @@
+:root {
+  --fg: #1f2328;
+  --muted: #6b7280;
+  --border: #e2e4e8;
+  --bg-hover: #f5f6f8;
+  --accent: #2563eb;
+  --warn: #b45309;
+  --error: #b91c1c;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, "Segoe UI", sans-serif;
+  color: var(--fg);
   width: 320px;
 }
 
 #app {
-  padding: 10px;
+  padding: 12px;
 }
 
 .hint {
-  margin: 0 0 6px;
+  margin: 0 0 8px;
   font-size: 12px;
-  color: #666;
+  color: var(--muted);
 }
 
 textarea {
   width: 100%;
   height: 120px;
   box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12px;
   resize: vertical;
+  transition: border-color 0.15s ease;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: var(--accent);
 }
 
 .warning {
-  color: #b45309;
+  color: var(--warn);
   font-size: 12px;
-  margin: 6px 0;
+  margin: 8px 0 0;
 }
 
 .unavailable {
-  color: #b91c1c;
+  color: var(--error);
   font-size: 12px;
-  margin: 6px 0;
+  margin: 8px 0 0;
 }
 
 #results {
   list-style: none;
-  margin: 8px 0 0;
+  margin: 10px 0 0;
   padding: 0;
   max-height: 220px;
   overflow-y: auto;
@@ -46,26 +66,30 @@ textarea {
 #results li {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 3px 0;
+  gap: 8px;
+  padding: 5px 4px;
   font-size: 12px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border);
+}
+
+#results li:last-child {
+  border-bottom: none;
 }
 
 #results li.clickable {
   cursor: pointer;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 
 #results li.clickable:hover {
-  background: #f2f2f2;
+  background: var(--bg-hover);
 }
 
 .swatch {
-  flex: 0 0 12px;
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
+  flex: 0 0 10px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
   border: 1px solid rgba(0, 0, 0, 0.15);
 }
 
@@ -79,10 +103,11 @@ textarea {
 
 .count {
   flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
   font-weight: 600;
 }
 
 .count.error {
-  color: #b91c1c;
+  color: var(--error);
   font-weight: normal;
 }

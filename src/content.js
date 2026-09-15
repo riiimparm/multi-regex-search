@@ -9,6 +9,29 @@
   // クリックのたびに次の出現箇所へ巡回する。
   let spansByIdx = [];
   let jumpCursor = {};
+  let currentPatterns = [];
+
+  // SPA等で後からテキストが追加/書き換えされても検索が追従するよう、
+  // DOM変化を監視して再適用する。自分自身の書き換え(clearHighlights/highlight)は
+  // observe中断で無視し、無限ループを防ぐ。
+  // ponytail: 変化のたびにページ全体を再スキャンする(差分スキャンではない)。
+  // 高頻度で更新され続けるページで負荷が気になるなら、変化のあった祖先要素だけを
+  // 再スキャンする方式に上げる。
+  let observer = null;
+  let mutationTimer = null;
+  function ensureObserver() {
+    if (observer) return;
+    observer = new MutationObserver(() => {
+      clearTimeout(mutationTimer);
+      mutationTimer = setTimeout(() => {
+        if (currentPatterns.length > 0) applyPatterns(currentPatterns);
+      }, 500);
+    });
+  }
+  function observeBody() {
+    ensureObserver();
+    observer.observe(document.body, { childList: true, subtree: true, characterData: true });
+  }
 
   function ensureFlashStyle() {
     if (document.getElementById("ext-regex-hl-style")) return;
@@ -63,6 +86,7 @@
         const parent = node.parentElement;
         if (!parent) return NodeFilter.FILTER_REJECT;
         if (SKIP_TAGS.has(parent.tagName)) return NodeFilter.FILTER_REJECT;
+        if (parent.isContentEditable) return NodeFilter.FILTER_REJECT;
         if (parent.closest(`.${HIGHLIGHT_CLASS}`)) return NodeFilter.FILTER_REJECT;
         if (!isVisible(parent, visibilityCache)) return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
@@ -125,6 +149,8 @@
   }
 
   function applyPatterns(patterns) {
+    if (observer) observer.disconnect();
+
     ensureFlashStyle();
     clearHighlights();
     const { regexes, errors } = compilePatterns(patterns);
@@ -135,6 +161,10 @@
       const nodes = collectTextNodes();
       for (const node of nodes) highlightTextNode(node, regexes, counts);
     }
+
+    currentPatterns = patterns;
+    if (patterns.length > 0) observeBody();
+
     return { counts, errors };
   }
 
@@ -162,9 +192,13 @@
   chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName !== "local") return;
     const key = location.hostname;
-    if (changes[key]) {
-      applyPatterns(changes[key].newValue || []);
-    }
+    if (!changes[key]) return;
+    const patterns = changes[key].newValue || [];
+    // popupからは既にAPPLY_PATTERNSメッセージで同じ内容が適用済みのことが多い
+    // (同一タブでの入力時)。storageイベントは主に他タブとの同期用なので、
+    // 内容が変わっていなければ再適用しない(二重描画防止)。
+    if (JSON.stringify(patterns) === JSON.stringify(currentPatterns)) return;
+    applyPatterns(patterns);
   });
 
   chrome.storage.local.get([location.hostname], (result) => {

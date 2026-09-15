@@ -61,10 +61,19 @@
     });
   }
 
-  function sendToContent(patterns) {
+  function sendToContent(patterns, retried) {
     chrome.tabs.sendMessage(tabId, { type: "APPLY_PATTERNS", patterns }, (response) => {
-      if (chrome.runtime.lastError) {
-        renderResults([], null);
+      if (chrome.runtime.lastError || !response) {
+        // 拡張機能のリロード等でタブ側のcontent scriptが失効している場合、
+        // メッセージは黒く失敗する。1回だけ注入し直して再送する。
+        if (retried) {
+          renderResults([], null);
+          return;
+        }
+        chrome.scripting.executeScript(
+          { target: { tabId }, files: ["src/colors.js", "src/content.js"] },
+          () => sendToContent(patterns, true)
+        );
         return;
       }
       renderResults(patterns, response);
